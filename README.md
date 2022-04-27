@@ -1,4 +1,4 @@
-# Supabase example
+# [Supabase example](http://supabase-example-seven.vercel.app/)
 
 ![Screenshot](docs/images/screenshot.png)
 
