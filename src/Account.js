@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Avatar from "./Avatar";
 import { supabase } from "./supabaseClient";
 
 const Account = ({ session }) => {
@@ -38,9 +39,7 @@ const Account = ({ session }) => {
     }
   };
 
-  const updateProfile = async (e) => {
-    e.preventDefault();
-
+  const updateProfile = async () => {
     try {
       setLoading(true);
       const user = supabase.auth.user();
@@ -54,7 +53,7 @@ const Account = ({ session }) => {
       };
 
       let { error } = await supabase.from("profiles").upsert(updates, {
-        returning: "minimal", // Don't return the value after inserting
+        returning: "minimal",
       });
 
       if (error) {
@@ -68,45 +67,57 @@ const Account = ({ session }) => {
   };
 
   return (
-    <div aria-live="polite">
-      {loading ? (
-        "Saving ..."
-      ) : (
-        <form onSubmit={updateProfile} className="form-widget">
-          <div>Email: {session.user.email}</div>
-          <div>
-            <label htmlFor="username">Name</label>
-            <input
-              id="username"
-              type="text"
-              value={username || ""}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="website">Website</label>
-            <input
-              id="website"
-              type="url"
-              value={website || ""}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
-          </div>
-          <div>
-            <button className="button block primary" disabled={loading}>
-              Update profile
-            </button>
-          </div>
-        </form>
-      )}
-      <button
-        type="button"
-        className="button block"
-        onClick={() => supabase.auth.signOut()}
-      >
-        Sign Out
-      </button>
-    </div>
+    <>
+      <div>
+        <Avatar
+          url={avatar_url}
+          size={150}
+          onUpload={(url) => {
+            setAvatarUrl(url);
+            updateProfile({ username, website, avatar_url: url });
+          }}
+        />
+      </div>
+      <div aria-live="polite">
+        {loading ? (
+          "Saving ..."
+        ) : (
+          <form onSubmit={() => updateProfile()} className="form-widget">
+            <div>Email: {session.user.email}</div>
+            <div>
+              <label htmlFor="username">Name</label>
+              <input
+                id="username"
+                type="text"
+                value={username || ""}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="website">Website</label>
+              <input
+                id="website"
+                type="url"
+                value={website || ""}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+            </div>
+            <div>
+              <button className="button block primary" disabled={loading}>
+                Update profile
+              </button>
+            </div>
+          </form>
+        )}
+        <button
+          type="button"
+          className="button block"
+          onClick={() => supabase.auth.signOut()}
+        >
+          Sign Out
+        </button>
+      </div>
+    </>
   );
 };
 
